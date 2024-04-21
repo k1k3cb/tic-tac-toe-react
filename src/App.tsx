@@ -3,12 +3,14 @@ import './App.css';
 import Board from './components/board/Board';
 import ResetButton from './components/reset-button/ResetButton';
 import ScoreBoard from './components/score-board/ScoreBoard';
+import WinnerMessage from './components/winner-message/WinnerMessage';
 
 function App() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [xPlaying, setXPlaying] = useState(true);
   const [score, setScore] = useState({ xScore: 0, oScore: 0 });
   const [gameOver, setGameOver] = useState(false);
+  const [playerWins, setPlayerWins] = useState<string | null>(null);
 
   const winConditions = [
     [0, 1, 2],
@@ -22,7 +24,7 @@ function App() {
   ];
 
   const handleBoxClick = (boxIndex: number) => {
-    if (gameOver) return;
+    if (gameOver) return; //when game is over, do nothing
     const updatedBoard = board.map((value, index) => {
       if (index === boxIndex) {
         return xPlaying ? 'X' : 'O';
@@ -34,6 +36,7 @@ function App() {
     const winner = checkWinner({ board: updatedBoard });
 
     if (winner) {
+      setPlayerWins(winner);
       if (winner === 'X') {
         setScore({ ...score, xScore: score.xScore + 1 });
       } else if (winner === 'O') {
@@ -49,7 +52,9 @@ function App() {
     for (let i = 0; i < winConditions.length; i++) {
       const [a, b, c] = winConditions[i];
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        
         setGameOver(true);
+
         return board[a];
       }
     }
@@ -57,6 +62,7 @@ function App() {
 
   const resetBoard = () => {
     setGameOver(false);
+    setPlayerWins(null);
     setBoard(Array(9).fill(null));
   };
 
@@ -64,6 +70,7 @@ function App() {
     <div>
       <ScoreBoard score={score} xPlaying={xPlaying} />
       <Board board={board} onClick={handleBoxClick} />
+      <WinnerMessage playerWins={playerWins} />
       <ResetButton resetBoard={resetBoard} />
     </div>
   );
